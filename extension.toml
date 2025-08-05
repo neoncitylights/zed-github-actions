@@ -1,0 +1,11 @@
+id = "github-actions"
+name = "GitHub Actions"
+version = "0.0.1"
+schema_version = 1
+authors = ["Samantha Nguyen <contact@samanthanguyen.me>"]
+description = "GitHub Actions LSP support for Zed."
+repository = "https://github.com/neoncitylights/zed-github-actions"
+
+[language_servers.gh-actions-language-server]
+name = "GitHub Actions Language Server"
+languages = ["YAML"]
