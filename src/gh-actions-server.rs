@@ -56,13 +56,13 @@ impl Extension for GitHubActionsExtension {
 	fn language_server_command(
 		&mut self,
 		language_server_id: &LanguageServerId,
-		_worktree: &Worktree,
+		worktree: &Worktree,
 	) -> Result<Command> {
 		self.install_package_if_needed(language_server_id, PACKAGE_NAME)?;
 
 		// HACK: Don't return Err since the error message can be more intrusive than usual,
 		// just `echo` to stdout that we're not going to run the LSP here
-		let path = _worktree.root_path();
+		let path = worktree.root_path();
 		if !path.starts_with(".github/workflows") {
 			return Ok(Command {
 				command: "echo".to_owned(),
