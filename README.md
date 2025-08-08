@@ -10,6 +10,7 @@
 GitHub Actions LSP support for Zed. As this repository uses code based on some official Zed extensions (e.g [Svelte](https://github.com/zed-extensions/svelte) and [Astro](https://github.com/zed-extensions/astro)), this repository is under the same license as those.
 To develop this extension, see the [Developing Extensions](https://zed.dev/docs/extensions/developing-extensions) section of the Zed docs.
 
+- Tree-sitter: [zed-industries/tree-sitter-yaml](https://github.com/zed-industries/tree-sitter-yaml)
 - Language Server: [actions/languageservices](https://github.com/actions/languageservices)
 - Language Server (binary): [lttb/gh-actions-language-server](https://github.com/lttb/gh-actions-language-server)
 
