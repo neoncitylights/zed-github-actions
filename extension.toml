@@ -6,6 +6,10 @@ authors = ["Samantha Nguyen <contact@samanthanguyen.me>"]
 description = "GitHub Actions LSP support for Zed."
 repository = "https://github.com/neoncitylights/zed-github-actions"
 
+[grammars.yaml]
+repository = "https://github.com/zed-industries/tree-sitter-yaml"
+commit = "baff0b51c64ef6a1fb1f8390f3ad6015b83ec13a"
+
 [language_servers.gh-actions-language-server]
 name = "GitHub Actions Language Server"
-languages = ["YAML"]
+languages = ["GitHub Actions"]

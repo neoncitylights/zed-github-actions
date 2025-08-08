@@ -9,6 +9,15 @@ struct GitHubActionsExtension {
 }
 
 impl GitHubActionsExtension {
+	fn binary_path() -> String {
+		zed_ext::sanitize_windows_path(std::env::current_dir().unwrap())
+			.join("node_modules")
+			.join(PACKAGE_NAME)
+			.join(format!("bin/{BINARY_NAME}"))
+			.to_string_lossy()
+			.to_string()
+	}
+
 	fn install_package_if_needed(
 		&mut self,
 		id: &LanguageServerId,
@@ -56,36 +65,13 @@ impl Extension for GitHubActionsExtension {
 	fn language_server_command(
 		&mut self,
 		language_server_id: &LanguageServerId,
-		worktree: &Worktree,
+		_worktree: &Worktree,
 	) -> Result<Command> {
 		self.install_package_if_needed(language_server_id, PACKAGE_NAME)?;
 
-		// HACK: Don't return Err since the error message can be more intrusive than usual,
-		// just `echo` to stdout that we're not going to run the LSP here
-		let path = worktree.root_path();
-		if !path.starts_with(".github/workflows") {
-			return Ok(Command {
-				command: "echo".to_owned(),
-				args: vec![
-					"-n".to_owned(),
-					"\"YAML file is not in a .github/workflows directory\"".to_owned(),
-				],
-				env: Default::default(),
-			});
-		}
-
-		let args = vec![
-			zed_ext::sanitize_windows_path(std::env::current_dir().unwrap())
-				.join("node_modules")
-				.join(PACKAGE_NAME)
-				.join(format!("bin/{BINARY_NAME}"))
-				.to_string_lossy()
-				.to_string(),
-			"--stdio".to_string(),
-		];
 		Ok(Command {
 			command: node_binary_path()?,
-			args,
+			args: vec![Self::binary_path(), "--stdio".to_string()],
 			env: Default::default(),
 		})
 	}
