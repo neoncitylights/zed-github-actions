@@ -42,7 +42,7 @@ You can configure the LSP settings in Zed with:
 {
 	// ...
 	"lsp": {
-		"github-actions-language-server": {
+		"gh-actions-language-server": {
 			"initialization_options": {
 				// ...
 			}
