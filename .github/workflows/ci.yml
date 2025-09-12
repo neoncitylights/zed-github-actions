@@ -1,0 +1,132 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v5
+    - name: Install Rust
+      run: |
+        rustup set profile minimal
+        rustup toolchain install stable
+        rustup override set stable
+    - name: Print environment info
+      run: |
+        rustc --version --verbose
+        cargo --version
+        rustup --version
+    - name: Cache dependencies
+      uses: Swatinem/rust-cache@v2
+      with:
+        shared-key: full-build-cache
+    - name: Build
+      run: cargo build --verbose --all-features
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v5
+    # `--doctests` flag for `cargo llvm-cov` requires nightly channel
+    # see: https://github.com/taiki-e/cargo-llvm-cov/issues/2
+    - name: Install Rust (Nightly)
+      run: |
+        rustup set profile minimal
+        rustup toolchain install nightly
+        rustup override set nightly
+        rustup component add llvm-tools-preview
+    - name: Print environment info
+      run: |
+        rustc --version --verbose
+        cargo --version
+        rustup --version
+    - name: Cache dependencies
+      uses: Swatinem/rust-cache@v2
+      with:
+        shared-key: full-build-cache
+    - name: Install cargo-llvm-codecov
+      uses: taiki-e/install-action@cargo-llvm-cov
+    - name: Generate code coverage
+      run: |
+        cargo llvm-cov \
+          --all-features \
+          --workspace \
+          --lcov \
+          --output-path lcov.info \
+          --doctests \
+
+  miri:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v5
+    - name: Install Rust (nightly)
+      run: |
+        rustup set profile minimal
+        rustup toolchain install nightly
+        rustup override set nightly
+        rustup component add miri
+    - name: Print environment info
+      run: |
+        rustc --version --verbose
+        cargo --version
+        rustup --version
+        cargo miri --version
+    - name: Cache dependencies
+      uses: Swatinem/rust-cache@v2
+      with:
+        shared-key: full-build-cache
+    - name: Setup Miri
+      run: |
+        cargo miri setup
+    - name: Run tests with Miri
+      run: cargo miri test
+
+  codequality:
+    name: codequality (${{ matrix.tool }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - tool: clippy
+            cmd-cargo: clippy
+            cmd-check: cargo clippy --all-features
+          - tool: rustfmt
+            cmd-cargo: fmt
+            cmd-check: cargo fmt --all -- --check
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Install Rust
+        run: |
+          rustup set profile minimal
+          rustup toolchain install stable
+          rustup override set stable
+          rustup component add ${{ matrix.tool }}
+      - name: Print environment info
+        run: |
+          rustc --version --verbose
+          cargo --version
+          cargo ${{ matrix.cmd-cargo }} --version
+          rustup --version
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: full-build-cache
+      - name: Run code quality assurance check (${{ matrix.tool }})
+        run: ${{ matrix.cmd-check }}
