@@ -27,7 +27,9 @@ This extension by default does not have any file associations built-in, as Zed d
 	"file_types": {
 		"GitHub Actions": [
 			".github/workflows/*.yml",
-			".github/workflows/*.yaml"
+			".github/workflows/*.yaml",
+			".github/actions/**/*.yml",
+			".github/actions/**/*.yaml"
 		]
 	}
 }
