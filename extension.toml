@@ -13,3 +13,13 @@ commit = "baff0b51c64ef6a1fb1f8390f3ad6015b83ec13a"
 [language_servers.gh-actions-language-server]
 name = "GitHub Actions Language Server"
 languages = ["GitHub Actions"]
+
+[[capabilities]]
+kind = "npm:install"
+package = "@actions/languageserver"
+
+# The GitHub token and repository come from the GitHub CLI and the git origin remote
+[[capabilities]]
+kind = "process:exec"
+command = "*"
+args = ["**"]
