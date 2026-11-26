@@ -12,10 +12,6 @@ To develop this extension, see the [Developing Extensions](https://zed.dev/docs/
 
 - Tree-sitter: [zed-industries/tree-sitter-yaml](https://github.com/zed-industries/tree-sitter-yaml)
 - Language Server: [actions/languageservices](https://github.com/actions/languageservices)
-- Language Server (binary): [lttb/gh-actions-language-server](https://github.com/lttb/gh-actions-language-server)
-
-> [!NOTE]
-> The LSP provided by the official NPM package [`@actions/languageserver`](https://www.npmjs.com/package/@actions/languageserver) does not include a binary (see [issue #56](https://github.com/actions/languageservices/issues/56)), so this repository uses a third-party NPM package to install it via [`gh-actions-language-server`](https://www.npmjs.com/package/gh-actions-language-server).
 
 ## Configuring
 ### Filetype settings
@@ -52,14 +48,14 @@ You can configure the LSP settings in Zed with:
 ```
 
 #### Default settings
-The default settings (`initialization_options`) set by the extension is shown below:
-```jsonc
-{
-	"sessionToken": ""
-}
-```
+The extension fills in `initialization_options` on its own, so that the language server can check `secrets.*`, `vars.*` and environments against github.com (e.g. `Context access might be invalid: MY_SECRET` for a secret that does not exist in the repository, the organization or the job's environment):
 
-A session token is a GitHub PAT (Personal Access Token). This is not required, but when specified allows accessing more information from github.com.
+- `sessionToken`: taken from the `GH_TOKEN` or `GITHUB_TOKEN` environment variable or, failing that, from the [GitHub CLI](https://cli.github.com) (`gh auth token`).
+- `repos`: the repository of the worktree, found through its `origin` remote and `gh api repos/<owner>/<name>`.
+
+Without a token or a github.com remote, the language server still runs, only without the validations that need github.com. Any value set in `initialization_options` overrides the detected one.
+
+A session token is a GitHub PAT (Personal Access Token), or the token of a logged-in GitHub CLI.
 - [Classic PATs](https://github.com/settings/tokens/new) will need access to `repo` and `workflow` scopes.
 - [Fine-grained PATs](https://github.com/settings/personal-access-tokens/new), which can either be given access to:
   - "Public repositories"
